@@ -35,19 +35,17 @@ def wikipedia_api(query,n=3,lang="en",suggestions=False):
         try:
             # Get the Wikipedia page for the topic
             page = wikipedia.WikipediaPage(topic)
-        # PageError occurs when the page does not exist
-        except wikipedia.exceptions.PageError:
-            return ["Page not found for topic: " + topic]
-        # This exception is raised when a page resolves to a Disambiguation page
-        except wikipedia.exceptions.DisambiguationError as e:
-        # The options property contains a list of titles of Wikipedia pages that the query may refer to
-            return ["Disambiguation error for topic: " + topic + " Options: " + str(e.options)]
-        # HTTPTimeoutError occurs when the request to the Wikipedia API times out probably due to a slow internet connection
-        except wikipedia.exceptions.HTTPTimeoutError:
-            return ["HTTP timeout error for topic: " + topic]
-        # RedirectError occurs when the page resolves to a redirect
-        except wikipedia.exceptions.RedirectError:
-            return ["Redirect error for topic: " + topic]
+        except (wikipedia.exceptions.PageError, wikipedia.exceptions.DisambiguationError, wikipedia.exceptions.HTTPTimeoutError, wikipedia.exceptions.RedirectError) as e:
+            if isinstance(e, wikipedia.exceptions.PageError):
+                error_message = f"Page not found for topic: {topic}"
+            elif isinstance(e, wikipedia.exceptions.DisambiguationError):
+                error_message = f"Disambiguation error for topic: {topic}. Options: {', '.join(e.options)}"
+            elif isinstance(e, wikipedia.exceptions.HTTPTimeoutError):
+                error_message = f"HTTP timeout error for topic: {topic}"
+            elif isinstance(e, wikipedia.exceptions.RedirectError):
+                error_message = f"Redirect error for topic: {topic}"
+            return [error_message]
+
         # Append the content and the URL of the page to the content list
         content.append({
             'content': page.content,
@@ -65,17 +63,16 @@ def wikipedia_api(query,n=3,lang="en",suggestions=False):
             try:
                 page = wikipedia.WikipediaPage(topic)
             # PageError occurs when the page does not exist
-            except wikipedia.exceptions.PageError:
-                return ["Page not found for topic: " + topic]
-            # DisambiguationError occurs when a page resolves to a Disambiguation page
-            except wikipedia.exceptions.DisambiguationError as e:
-                return ["Disambiguation error for topic: " + topic + " Options: " + str(e.options)]
-            # HTTPTimeoutError occurs when the request to the Wikipedia API times out probably due to a slow internet connection
-            except wikipedia.exceptions.HTTPTimeoutError:
-                return ["HTTP timeout error for topic: " + topic]
-            # RedirectError occurs when the page resolves to a redirect
-            except wikipedia.exceptions.RedirectError:
-                return ["Redirect error for topic: " + topic]
+            except (wikipedia.exceptions.PageError, wikipedia.exceptions.DisambiguationError, wikipedia.exceptions.HTTPTimeoutError, wikipedia.exceptions.RedirectError) as e:
+                if isinstance(e, wikipedia.exceptions.PageError):
+                    error_message = f"Page not found for topic: {topic}"
+                elif isinstance(e, wikipedia.exceptions.DisambiguationError):
+                    error_message = f"Disambiguation error for topic: {topic}. Options: {', '.join(e.options)}"
+                elif isinstance(e, wikipedia.exceptions.HTTPTimeoutError):
+                    error_message = f"HTTP timeout error for topic: {topic}"
+                elif isinstance(e, wikipedia.exceptions.RedirectError):
+                    error_message = f"Redirect error for topic: {topic}"
+                return [error_message]
             suggested_content.append({
                 'content': page.content,
                 'url': page.url
