@@ -77,6 +77,14 @@ def wikipedia_api(query,n=3,lang="en",suggestions=False):
                 'content': page.content,
                 'url': page.url
             })
+        if content.__len__() == 0 and suggested_content.__len__() == 0:
+            return ["No content found for the query"]
+        elif content.__len__() == 0:
+            return [suggested_content]
+        elif suggested_content.__len__() == 0:
+            return [content]
         return [content,suggested_content]
+    if content.__len__() == 0:
+        return ["No content found for the query"]
     return content
 sys.modules[__name__] = wikipedia_api
